@@ -1,7 +1,7 @@
 const express = require("express")
 const jwt = require('jsonwebtoken');
 const cors = require("cors")
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 
 const app = express()
@@ -57,6 +57,7 @@ async function run() {
     await client.connect();
 
     const userCollection = client.db("Music-Camp").collection("users")
+    const classCollection = client.db("Music-Camp").collection("class")
 
 
     app.post("/jwt", (req, res)=>{
@@ -74,6 +75,15 @@ async function run() {
         const result = await userCollection.insertOne(user)
         res.send(result)
         
+    })
+
+    app.delete("/users/:id", async(req, res)=>{
+
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+      const result = await userCollection.deleteOne(query)
+       
+      res.send(result)
     })
 
     app.patch("/users/admin", async(req, res)=>{
@@ -113,6 +123,15 @@ async function run() {
 
       const result = await userCollection.find().toArray()
       res.send(result)
+
+    })
+
+    app.post("/classes", async(req, res)=>{
+
+     const classes = req.body;
+
+     const result = await classCollection.insertOne(classes)
+     res.send(result)
 
     })
 
