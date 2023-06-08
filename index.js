@@ -135,6 +135,95 @@ async function run() {
 
     })
 
+    app.get("/classes", async(req, res)=>{
+
+      const result = await classCollection.find().toArray()
+      res.send(result)
+
+    })
+
+    app.put("/classes/:id", async(req, res)=>{
+
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const updateData = req.body;
+      console.log(updateData);
+
+      
+      const updateDoc ={
+        $set :{
+           className: updateData?.className,
+           seats:updateData?.seats,
+           price:updateData?.price,
+           image: updateData?.image
+
+        }
+      }
+
+      const result = await classCollection.updateOne(query, updateDoc)
+      res.send(result)
+      
+    })
+
+    app.patch("/class/:id", async(req, res)=>{
+
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const feedback = req.body;
+      console.log(feedback.feedback);
+      const options = { upsert: true };
+      const updateDoc={
+        $set:{
+          feedback:feedback.feedback,
+        }
+      }
+
+      const result = await classCollection.updateOne( query,updateDoc,options)
+      res.send(result)
+    })
+    
+    app.patch("/class/approve/:id", async(req, res)=>{
+
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const updateDoc ={
+        $set :{
+           status: "approve"
+        }
+      }
+      const result = await classCollection.updateOne(query,updateDoc)
+      res.send(result)
+    })
+    app.patch("/class/deny/:id", async(req, res)=>{
+
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const updateDoc ={
+        $set :{
+           status: "deny"
+        }
+      }
+      const result = await classCollection.updateOne(query,updateDoc)
+      res.send(result)
+    })
+
+    app.get("/myClasses", async(req, res)=>{
+
+      const email = req.query.email;
+      const query = {email : email}
+
+      const result = await classCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get("/myClasses/:id", async(req, res)=>{
+      const id = req.params.id;
+
+      const query = {_id: new ObjectId(id)}
+      const result = await classCollection.find(query).toArray()
+      res.send(result)
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
