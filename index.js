@@ -1,4 +1,5 @@
 const express = require("express")
+const jwt = require('jsonwebtoken');
 const cors = require("cors")
 const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config()
@@ -12,6 +13,27 @@ const port = process.env.PORT || 5000
 
 app.use(cors())
 app.use(express.json())
+
+const verifyJWT =(req, res, next)=>{
+
+  const authorization = req.headers.authorization
+
+  if(!authorization){
+    return res.status(401).send({error: true, message:"unauthorized access"})
+  }
+  const token = authorization.split(" ")[1]
+
+  jwt.verify(token, process.env.Access_Token, (err, decoded)=>{
+
+    if(err){
+      return res.status(401).send({error: true, message:"unauthorized access"})
+    }
+
+    req.decoded = decoded;
+    next()
+
+  })
+}
 
 
 
@@ -33,6 +55,67 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const userCollection = client.db("Music-Camp").collection("users")
+
+
+    app.post("/jwt", (req, res)=>{
+
+      const user = req.body;
+      const token = jwt.sign(user, process.env.Access_Token,{
+        expiresIn:"30 days"
+      } )
+      res.send({token})
+    })
+
+    app.post("/users", async(req, res)=>{
+
+        const user = req.body;
+        const result = await userCollection.insertOne(user)
+        res.send(result)
+        
+    })
+
+    app.patch("/users/admin", async(req, res)=>{
+
+      const user = req.body;
+      console.log(user.email);
+      const query = {email : user.email}
+
+      const updateDoc = {
+        $set :{
+           role: "admin"
+        }
+      }
+
+      const result = await userCollection.updateOne(query, updateDoc)
+      res.send(result)
+
+    })
+    app.patch("/users/instructor", async(req, res)=>{
+
+      const user = req.body;
+      console.log(user.email);
+      const query = {email : user.email}
+
+      const updateDoc = {
+        $set :{
+           role: "instructor"
+        }
+      }
+
+      const result = await userCollection.updateOne(query, updateDoc)
+      res.send(result)
+
+    })
+
+    app.get("/users", verifyJWT, async(req, res)=>{
+
+      const result = await userCollection.find().toArray()
+      res.send(result)
+
+    })
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
