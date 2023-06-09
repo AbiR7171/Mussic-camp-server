@@ -58,6 +58,7 @@ async function run() {
 
     const userCollection = client.db("Music-Camp").collection("users")
     const classCollection = client.db("Music-Camp").collection("class")
+    const BookingCollection = client.db("Music-Camp").collection("Book")
 
 
     app.post("/jwt", (req, res)=>{
@@ -224,6 +225,37 @@ async function run() {
       res.send(result)
     })
 
+    app.post("/bookings", async(req, res)=>{
+
+      const Book = req.body;
+      const result = await BookingCollection.insertOne(Book)
+      res.send(result)
+    })
+
+    app.get("/bookings", async(req, res)=>{
+
+      const result = await BookingCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.get("/myBooking", async(req, res)=>{
+
+      const email = req.query.email;
+      const query = {email : email}
+      const result = await BookingCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.delete("/myBooking/:id", async(req, res)=>{
+
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+
+      const result =  await BookingCollection.deleteOne(query)
+      res.send(result)
+    })
+
+   
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
