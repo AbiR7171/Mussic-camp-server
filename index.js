@@ -148,6 +148,13 @@ async function run() {
 
     })
 
+    app.get("/classes/:id", async(req, res)=>{
+      const id =req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await classCollection.find(query).toArray()
+      res.send(result)
+    })
+
     app.put("/classes/:id", async(req, res)=>{
 
       const id = req.params.id;
@@ -185,6 +192,22 @@ async function run() {
       }
 
       const result = await classCollection.updateOne( query,updateDoc,options)
+      res.send(result)
+    })
+
+    app.patch("/classEnroll/:id", async(req, res)=>{
+
+      const {seat, totalEnrolled}= req.body;   
+
+      const id = req.params.id;
+      const query = {_id:new ObjectId(id)}
+      const updateDoc={
+        $set:{
+          seat: seat -1,
+          totalEnrolled: totalEnrolled + 1
+        }
+      }
+      const result = await classCollection.updateOne(query, updateDoc)
       res.send(result)
     })
     
@@ -230,20 +253,20 @@ async function run() {
       res.send(result)
     })
 
-    app.post("/bookings", async(req, res)=>{
+    app.post("/selected", async(req, res)=>{
 
       const Book = req.body;
       const result = await BookingCollection.insertOne(Book)
       res.send(result)
     })
 
-    app.get("/bookings", async(req, res)=>{
+    app.get("/selected", async(req, res)=>{
 
       const result = await BookingCollection.find().toArray()
       res.send(result)
     })
 
-    app.get("/myBooking", async(req, res)=>{
+    app.get("/mySelected", async(req, res)=>{
 
       const email = req.query.email;
       const query = {email : email}
@@ -251,7 +274,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get("/myBooking/:id", async(req, res)=>{
+    app.get("/mySelected/:id", async(req, res)=>{
       
       const id = req.params.id;
       const query = {_id:new ObjectId(id)}
@@ -259,12 +282,25 @@ async function run() {
       res.send(result)
     })
 
-    app.delete("/myBooking/:id", async(req, res)=>{
+    app.delete("/mySelected/:id", async(req, res)=>{
 
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
 
       const result =  await BookingCollection.deleteOne(query)
+      res.send(result)
+    })
+
+    app.patch("/mySelected/:id", async(req, res)=>{
+      
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+      const updateDoc ={
+        $set:{
+           status:"booked"
+        }
+      }
+      const result =await BookingCollection.updateOne(query, updateDoc)
       res.send(result)
     })
 
