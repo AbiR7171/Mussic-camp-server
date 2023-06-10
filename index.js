@@ -150,7 +150,7 @@ async function run() {
 
     app.get("/classes/:id", async(req, res)=>{
       const id =req.params.id;
-      const query = { _id: new ObjectId(id) }
+      const query = { _id: id }
       const result = await classCollection.find(query).toArray()
       res.send(result)
     })
@@ -195,16 +195,17 @@ async function run() {
       res.send(result)
     })
 
-    app.patch("/classEnroll/:id", async(req, res)=>{
+    app.put("/classEnroll/:id", async(req, res)=>{
 
-      const {seat, totalEnrolled}= req.body;   
+      
 
       const id = req.params.id;
       const query = {_id:new ObjectId(id)}
+      const updateData = req.body;
       const updateDoc={
         $set:{
-          seat: seat -1,
-          totalEnrolled: totalEnrolled + 1
+          seat:updateData.seat -1,
+          totalEnrolled: updateData.totalEnrolled + 1 
         }
       }
       const result = await classCollection.updateOne(query, updateDoc)
