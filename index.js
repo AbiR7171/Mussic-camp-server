@@ -61,9 +61,16 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+
+
+
     const userCollection = client.db("Music-Camp").collection("users")
     const classCollection = client.db("Music-Camp").collection("class")
     const BookingCollection = client.db("Music-Camp").collection("Book")
+
+
+
+
 
 
     app.post("/jwt", (req, res)=>{
@@ -74,6 +81,29 @@ async function run() {
       } )
       res.send({token})
     })
+
+    const verifyAdmin = async(req, res, next)=>{
+
+      const email = req.decoded.email;
+      console.log(req.decoded);
+      const query = {email : email}
+      const user = await userCollection.findOne(query)
+      if(user?.role !== "admin"){
+            return res.status(403).send({error:true, message:"forbidden message"})
+      }
+      next()
+    }
+    const verifyInstructor = async(req, res, next)=>{
+
+      const email = req.decoded.email;
+      console.log(req.decoded);
+      const query = {email : email}
+      const user = await userCollection.findOne(query)
+      if(user?.role !== "instructor"){
+            return res.status(403).send({error:true, message:"forbidden message"})
+      }
+      next()
+    }
 
     app.post("/users", async(req, res)=>{
 
