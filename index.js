@@ -105,6 +105,35 @@ async function run() {
       next()
     }
 
+
+    app.get("/users/admin/:email",  verifyJWT, async(req, res)=>{
+
+      const email = req.decoded.email;
+
+      if(req.decoded.email !== email){
+        res.send({admin:false})
+      }
+
+      const query = {email : email}
+      const user = await userCollection.findOne(query)
+      const result ={admin: user?.role === "admin"}
+      res.send(result)
+    })
+
+    app.get("/users/instructor/:email",  verifyJWT, async(req, res)=>{
+
+      const email = req.decoded.email;
+
+      if(req.decoded.email !== email){
+        res.send({instructor:false})
+      }
+
+      const query = {email : email}
+      const user = await userCollection.findOne(query)
+      const result ={instructor: user?.role === "instructor"}
+      res.send(result)
+    })
+
     app.post("/users", async(req, res)=>{
 
         const user = req.body;
