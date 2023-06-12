@@ -244,20 +244,20 @@ async function run() {
 
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
-      const feedback = req.body;
-      console.log(feedback.feedback);
+      const{ feedback} = req.body;
       const options = { upsert: true };
+      console.log(feedback);
       const updateDoc={
         $set:{
-          feedback:feedback.feedback,
+          feedback
         }
       }
 
-      const result = await classCollection.updateOne( query,updateDoc,options)
+      const result = await classCollection.updateOne( query,updateDoc, options)
       res.send(result)
     })
 
-    app.put("/classEnroll/:id", async(req, res)=>{
+    app.put("/classEnroll/:id",  async(req, res)=>{
 
       
 
@@ -299,7 +299,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get("/myClasses", async(req, res)=>{
+    app.get("/myClasses", verifyJWT, verifyInstructor, async(req, res)=>{
 
       const email = req.query.email;
       const query = {email : email}
@@ -308,7 +308,7 @@ async function run() {
       res.send(result)
     })
 
-    app.get("/myClasses/:id", async(req, res)=>{
+    app.get("/myClasses/:id",verifyJWT, verifyInstructor, async(req, res)=>{
       const id = req.params.id;
 
       const query = {_id: new ObjectId(id)}
@@ -323,13 +323,13 @@ async function run() {
       res.send(result)
     })
 
-    app.get("/selected", async(req, res)=>{
+    app.get("/selected",verifyJWT, async(req, res)=>{
 
       const result = await BookingCollection.find().toArray()
       res.send(result)
     })
 
-    app.get("/mySelected", async(req, res)=>{
+    app.get("/mySelected",verifyJWT, async(req, res)=>{
 
       const email = req.query.email;
       const query = {email : email}
