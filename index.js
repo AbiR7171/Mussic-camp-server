@@ -204,11 +204,12 @@ async function run() {
 
     app.get("/classes", async(req, res)=>{
 
-      const result = await classCollection.find().toArray()
+      const result = await classCollection.find().sort({totalEnrolled:-1}).toArray()
       res.send(result)
 
     })
 
+ 
     app.get("/classes/:id", async(req, res)=>{
       const id =req.params.id;
       const query = { _id: id }
@@ -239,7 +240,7 @@ async function run() {
       
     })
 
-    app.patch("/feedback/:id", async(req, res)=>{
+    app.put("/feedback/:id", async(req, res)=>{
 
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
