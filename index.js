@@ -59,7 +59,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
 
 
@@ -142,6 +142,8 @@ async function run() {
         
     })
 
+   
+
     app.delete("/users/:id", async(req, res)=>{
 
       const id = req.params.id;
@@ -184,7 +186,7 @@ async function run() {
 
     })
 
-    app.get("/users", verifyJWT, async(req, res)=>{
+    app.get("/users", async(req, res)=>{
 
       const result = await userCollection.find().toArray()
       res.send(result)
@@ -237,7 +239,7 @@ async function run() {
       
     })
 
-    app.patch("/class/:id", async(req, res)=>{
+    app.patch("/feedback/:id", async(req, res)=>{
 
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
